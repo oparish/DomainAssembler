@@ -1,5 +1,6 @@
 package data;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -11,6 +12,9 @@ public class MainData
 {
 	private static MainData instance;
 	private MainWindow mainWindow;
+	private File tableSaveFile;
+	private boolean dataSaved;
+	
 	public MainWindow getMainWindow() {
 		return this.mainWindow;
 	}

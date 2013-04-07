@@ -26,12 +26,12 @@ public class LabelledField extends Panel
 		this.add(this.textField);
 	}
 	
-	private void setText(String text)
+	public void setText(String text)
 	{
 		this.textField.setText(text);
 	}
 	
-	private String getText()
+	public String getText()
 	{
 		return this.textField.getText();
 	}
