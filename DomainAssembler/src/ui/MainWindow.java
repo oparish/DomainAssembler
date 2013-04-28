@@ -412,6 +412,7 @@ public class MainWindow extends JFrame implements ActionListener,
 				
 			i = fileReader.read();
 		}
+		fileReader.close();
 	}
 	
 	private void skipFirstRow(FileReader reader) throws IOException
