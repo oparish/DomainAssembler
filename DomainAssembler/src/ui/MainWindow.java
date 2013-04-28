@@ -355,6 +355,7 @@ public class MainWindow extends JFrame implements ActionListener,
 		if (returnValue == APPROVE_OPTION)
 		{
 			File loadFile = this.myFileChooser.getSelectedFile();
+			this.saveFile = loadFile;
 			try {
 				this.loadFromFile(loadFile);
 			} catch (IOException e) {
