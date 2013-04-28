@@ -8,9 +8,14 @@ public class DomainRow
 {
 	private HashMap<DomainField, String> fieldMap;
 	
-	public DomainRow(String name)
+	public DomainRow()
 	{
 		this.fieldMap = new HashMap<DomainField, String>();
+	}
+	
+	public DomainRow(String name)
+	{
+		this();
 		for (DomainField field: DomainField.values())
 		{
 			if (field == ZONING_NAME)

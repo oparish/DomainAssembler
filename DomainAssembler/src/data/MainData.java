@@ -12,12 +12,6 @@ public class MainData
 {
 	private static MainData instance;
 	private MainWindow mainWindow;
-	private File tableSaveFile;
-	private boolean dataSaved;
-	
-	public boolean isDataSaved() {
-		return dataSaved;
-	}
 
 	public MainWindow getMainWindow() {
 		return this.mainWindow;
@@ -34,7 +28,7 @@ public class MainData
 	public static void main(String args[])
 	{
 		MainData.instance = new MainData();
-		MainData.test();
+		//MainData.test();
 	}
 	
 	public static MainData getMainDataInstance()

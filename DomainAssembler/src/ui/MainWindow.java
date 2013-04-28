@@ -11,6 +11,7 @@ import static data.DomainField.ZONING_NAME;
 import static data.DomainField.ZONING_OBJECT;
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.HORIZONTAL;
+import static javax.swing.JFileChooser.APPROVE_OPTION;
 import static ui.ButtonType.ADD_ROW;
 import static ui.ButtonType.DELETE_ROW;
 import static ui.ButtonType.LOAD_TABLE;
@@ -27,11 +28,17 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
@@ -56,12 +63,15 @@ public class MainWindow extends JFrame implements ActionListener,
 	private JToolBar toolbar;
 	private boolean rowSaved = true;
 	private DomainRow rowSelected = null;
-	
+	private File saveFile;
+	private boolean tableSaved;
+	private JFileChooser myFileChooser;
 
 
 	public MainWindow()
 	{
 		super();
+		this.myFileChooser = new JFileChooser();
 		this.setSize(1200, 500);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		double mainWidth = screenSize.getWidth();
@@ -250,6 +260,10 @@ public class MainWindow extends JFrame implements ActionListener,
 		DefaultListModel model = this.rowList.getDefaultListModel();
 		DomainRow newRow = new DomainRow(rowName);
 		model.addElement(newRow);
+		if (this.rowSelected == null)
+		{
+			this.enableFields();
+		}
 		this.rowList.setSelectedValue(newRow, true);
 		if (!this.rowSaved)
 			suggestSaving(newRow);
@@ -265,6 +279,166 @@ public class MainWindow extends JFrame implements ActionListener,
 	private void openDeleteDialog()
 	{
 		new DeleteRowDialog(this).setVisible(true);
+	}
+	
+	private void saveTable()
+	{
+		if (this.saveFile == null)
+			this.saveTableAs();
+		else
+			this.startSaving();
+	}
+	
+	private void startSaving()
+	{
+		if (!this.rowSaved)
+		{
+			this.saveSelectedRow();
+		}
+		this.saveToFile();
+	}
+	
+	public void saveToFile()
+	{
+		StringBuilder sb = new StringBuilder();
+
+		int i = 0;
+		DomainField[] fields = DomainField.values();
+		
+		for (DomainField field : fields)
+		{
+			sb.append(field.toString());
+			i++;
+			if (i == fields.length)
+				sb.append("\r\n");
+			else
+				sb.append('\t');
+
+		}
+		
+		Object[] rows = this.rowList.getDefaultListModel().toArray();
+		
+		for (Object row : rows)
+		{
+			int j = 0;
+			for (DomainField field: fields)
+			{
+				String columnString =  ((DomainRow)row).getFieldValue(field);
+				sb.append(columnString);
+				j++;
+				if (j == fields.length)
+					sb.append("\r\n");
+				else
+					sb.append('\t');
+			}
+		}
+		
+		FileWriter fileWriter;
+		try
+		{
+			fileWriter = new FileWriter(this.saveFile);
+			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+			bufferedWriter.write(sb.toString());
+			bufferedWriter.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		
+	}
+	
+	private void loadTable()
+	{
+		int returnValue = this.myFileChooser.showOpenDialog(this);
+		if (returnValue == APPROVE_OPTION)
+		{
+			File loadFile = this.myFileChooser.getSelectedFile();
+			try {
+				this.loadFromFile(loadFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		DefaultListModel model = this.rowList.getDefaultListModel();
+		if (model.getSize() == 0)
+		{
+			this.disableFields();
+		}
+		else
+		{
+			this.enableFields();
+			this.loadRow((DomainRow)model.toArray()[0]);
+		}
+	}
+	
+	private void loadFromFile(File loadFile) throws IOException
+	{
+		this.clearRows();
+		FileReader fileReader = new FileReader(loadFile);
+		skipFirstRow(fileReader);
+		DomainField[] fields = DomainField.values();
+		DomainRow currentRow = new DomainRow();
+		DefaultListModel model = this.rowList.getDefaultListModel();
+		StringBuilder sb = new StringBuilder();
+		int i;
+		int j = 0;
+		i = fileReader.read();
+		while ( i != -1)
+		{
+			char c = (char) i;
+			if (c == '\t')
+			{
+				currentRow.setFieldValue(fields[j], sb.toString());
+				sb = new StringBuilder();
+				j++;
+			}
+			else if (c == '\r')
+			{
+				i = fileReader.read();
+				currentRow.setFieldValue(fields[j], sb.toString());
+				sb = new StringBuilder();
+				model.addElement(currentRow);
+				currentRow = new DomainRow();
+				j = 0 ;
+			}
+			else
+			{
+				sb.append(c);
+			}
+				
+			i = fileReader.read();
+		}
+	}
+	
+	private void skipFirstRow(FileReader reader) throws IOException
+	{
+		int i;
+		char c;
+		do 
+		{
+			i = reader.read();
+			c = (char) i;
+		}
+		while ( c != '\r');
+		reader.read();
+	}
+	
+	private void clearRows()
+	{
+		this.rowList.getDefaultListModel().clear();
+	}
+	
+	private void saveTableAs()
+	{
+		int returnValue = this.myFileChooser.showSaveDialog(this);
+		if (returnValue == APPROVE_OPTION)
+		{
+			this.saveFile = this.myFileChooser.getSelectedFile();
+			this.startSaving();
+		}
 	}
 	
 	@Override
@@ -284,6 +458,15 @@ public class MainWindow extends JFrame implements ActionListener,
 				break;
 			case DELETE_ROW:
 				this.openDeleteDialog();
+				break;
+			case SAVE_TABLE_AS:
+				this.saveTableAs();
+				break;
+			case LOAD_TABLE:
+				this.loadTable();
+				break;
+			case SAVE_TABLE:
+				this.saveTable();
 				break;
 			case QUIT:
 				this.quit();
