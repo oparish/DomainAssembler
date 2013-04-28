@@ -5,11 +5,20 @@ import java.awt.Panel;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentListener;
 
+@SuppressWarnings("serial")
 public class LabelledField extends Panel
 {
 	private JTextField textField;
 	private JLabel label;
+	
+	public LabelledField(String labelText, DocumentListener documentListener)
+	{
+		this(labelText);
+		this.textField.getDocument().addDocumentListener(documentListener);
+
+	}
 	
 	public LabelledField(String labelText)
 	{
@@ -34,5 +43,10 @@ public class LabelledField extends Panel
 	public String getText()
 	{
 		return this.textField.getText();
+	}
+	
+	public void setEnabled(boolean enabled)
+	{
+		this.textField.setEnabled(enabled);
 	}
 }

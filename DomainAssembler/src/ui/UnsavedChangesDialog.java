@@ -5,7 +5,6 @@ import static javax.swing.SwingConstants.CENTER;
 import static ui.ButtonType.NO;
 import static ui.ButtonType.YES;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -16,17 +15,21 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import data.DomainRow;
+
 @SuppressWarnings("serial")
-public class DeleteRowDialog extends MyDialog
+public class UnsavedChangesDialog extends MyDialog
 {
-	private static final String ARE_YOU_SURE = "Are you sure?";
-	private static final String REALLY_DELETE_THIS_ROW = "Really delete this row?";
-	
-	public DeleteRowDialog(MainWindow mainWindow)
+	private static final String ARE_YOU_SURE = "The current row has unsaved changes. Save before changing?";
+	private static final String UNSAVED_CHANGES = "Unsaved Changes";
+	DomainRow newRow;
+
+	public UnsavedChangesDialog(MainWindow mainWindow, DomainRow newRow)
 	{
-		super(mainWindow, ARE_YOU_SURE);
+		super(mainWindow, UNSAVED_CHANGES);
+		this.newRow = newRow;
 		this.setLayout(new GridBagLayout());
-		this.add(new JLabel(REALLY_DELETE_THIS_ROW, CENTER), this.getLabelConstraints());
+		this.add(new JLabel(ARE_YOU_SURE, CENTER), this.getLabelConstraints());
 		MyButton yesButton = new MyButton(YES);
 		this.add(yesButton, this.getButtonConstraints(0));
 		yesButton.addActionListener(this);
@@ -70,11 +73,12 @@ public class DeleteRowDialog extends MyDialog
 			switch(sourceButton.getType())
 			{
 			case YES:
-				mainWindow.deleteRow();
+				mainWindow.saveSelectedRow();
 				break;
 			default:
 			}
 		}
+		mainWindow.loadRow(newRow);
 		this.setVisible(false);
 	}
 }

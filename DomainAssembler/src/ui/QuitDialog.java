@@ -1,30 +1,38 @@
 package ui;
 
 import static java.awt.GridBagConstraints.HORIZONTAL;
+import static javax.swing.SwingConstants.CENTER;
 import static ui.ButtonType.NO;
+import static ui.ButtonType.QUIT;
 import static ui.ButtonType.YES;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
-public class QuitDialog extends JDialog
+@SuppressWarnings("serial")
+public class QuitDialog extends MyDialog
 {
 	private static final String WORK_NOT_SAVED = "Work Not Saved";
 	private static final String QUIT_WITHOUT_SAVING = "Quit Without Saving?";
 	
-	public QuitDialog(JFrame parentFrame)
+	public QuitDialog(MainWindow mainWindow)
 	{
-		super(parentFrame, WORK_NOT_SAVED);
+		super(mainWindow, WORK_NOT_SAVED);
 		this.setLayout(new GridBagLayout());
-		this.add(new JLabel(QUIT_WITHOUT_SAVING), getLabelConstraints());
-		this.add(new MyButton(YES), getButtonConstraints(0));
-		this.add(new MyButton(NO), getButtonConstraints(1));
-		this.setSize(300, 200);
+		this.add(new JLabel(QUIT_WITHOUT_SAVING, CENTER), getLabelConstraints());
+		MyButton yesButton = new MyButton(YES);
+		this.add(yesButton, getButtonConstraints(0));
+		yesButton.addActionListener(this);
+		MyButton noButton = new MyButton(NO);
+		this.add(noButton, getButtonConstraints(1));
+		noButton.addActionListener(this);
 	}
 	
 	private GridBagConstraints getLabelConstraints()
@@ -48,5 +56,26 @@ public class QuitDialog extends JDialog
 		buttonFieldConstraints.weightx = 1;
 		buttonFieldConstraints.weighty = 1;
 		return buttonFieldConstraints;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		Object source = e.getSource();
+		MainWindow mainWindow = this.getMainWindow();
+		if (source instanceof MyButton)
+		{
+			MyButton sourceButton = (MyButton) source;
+
+			switch(sourceButton.getType())
+			{
+			case YES:
+				mainWindow.setVisible(false);
+				break;
+			default:
+			}
+		}
+		this.setVisible(false);
+		
 	}
 }

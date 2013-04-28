@@ -7,6 +7,7 @@ public enum ButtonType
 	SAVE_TABLE_AS("Save Table As..."),
 	LOAD_TABLE("Load Table"),
 	SAVE_TABLE("Save Table"),
+	SAVE_SELECTED_ROW("Save Selected Row"),
 	QUIT("Quit"),
 	CANCEL("Cancel"),
 	SUBMIT("Submit"),

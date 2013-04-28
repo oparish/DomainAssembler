@@ -7,7 +7,8 @@ import javax.swing.JList;
 
 import data.DomainRow;
 
-public class RowList<DomainRow> extends JList
+@SuppressWarnings("serial")
+public class RowList extends JList
 {
 	RowList(ArrayList<DomainRow> rows)
 	{

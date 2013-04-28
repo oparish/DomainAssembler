@@ -2,6 +2,7 @@ package ui;
 
 import javax.swing.JButton;
 
+@SuppressWarnings("serial")
 public class MyButton extends JButton
 {
 	private final ButtonType type;
